@@ -6,7 +6,8 @@
          int flag1=0;
          unsigned char h,m,s,date,month,year,day;
          i2c_init();
-					uart0_init(9600);
+					
+         uart0_init(9600);
          config_uart0();
          lcd_init();
          i2c_write(0xD0,0x2,0x11);
@@ -25,7 +26,7 @@
                  month=i2c_read(0xD1,0x05);
                  year=i2c_read(0xD1,0x06);
                  day=i2c_read(0xD1,0x03);
-									s&=0x7f;
+		s&=0x7f;
  //              uart0_tx((h/16)+48);
  //uart0_tx((h%16)+48);
  //uart0_tx(':');
@@ -117,11 +118,11 @@
                  {
                          uart0_tx_string(a);
                          uart0_tx_string("\r\n");
-													lcd_cmd(0x01);
-													lcd_cmd(0x80);
-													lcd_string("Attendance saved");
-													delay_ms(1000);
-													lcd_cmd(0x01);
+			lcd_cmd(0x01);
+		        lcd_cmd(0x80);
+			lcd_string("Attendance saved");
+			delay_ms(1000);
+	                lcd_cmd(0x01);
                          flag=0;
                  }
          }
