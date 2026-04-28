@@ -1,166 +1,128 @@
-# ⏱️ RTC-Based Attendance Logging System (LPC21xx)
+RTC-Based Attendance Logging System (LPC21xx + Linux)
+Overview
 
-## 📌 Overview
+This project implements a Real-Time Clock (RTC) based Attendance Logging System using the LPC21xx ARM7 microcontroller, integrated with a Linux-based host system for persistent data storage.
 
-This project implements a **Real-Time Clock (RTC) based Attendance Logging System** using the **LPC21xx ARM7 microcontroller**.
-It combines **I2C communication**, **UART interrupt handling**, and **LCD interfacing** to display real-time date/time and log attendance data entered via serial communication.
+The embedded system handles real-time clock management, user input, and display, while the Linux application receives attendance data via serial communication and stores it in files.
 
----
+Key Features
+I2C communication with RTC (DS1307/DS3231)
+Real-time clock display (time, date, day)
+16x2 LCD interface for live system status
+UART interrupt-driven input handling
+Serial communication between microcontroller and Linux system
+File-based attendance logging on Linux
+Continuous real-time operation
+Technologies Used
+Embedded C
+LPC21xx (ARM7TDMI)
+I2C Protocol
+UART Communication (Interrupt-driven)
+LCD Interfacing
+Linux System Programming (POSIX APIs such as open, read, write)
+System Architecture
 
-## 🎯 Key Features
+The system is divided into two main components:
 
-* 📡 I2C communication with RTC (DS1307/DS3231)
-* ⏰ Real-time clock display (Time, Date, Day)
-* 🖥️ 16x2 LCD interface for live display
-* ⌨️ UART interrupt-based user input
-* 📝 Attendance logging via serial terminal
-* 🔁 Continuous real-time updates
+Embedded System (LPC21xx):
 
----
+Reads and maintains real-time data using RTC
+Accepts user input via UART
+Displays information on LCD
+Sends attendance data over serial communication
 
-## 🧰 Technologies Used
+Linux Host System:
 
-* Embedded C
-* LPC21xx (ARM7TDMI)
-* I2C Protocol
-* UART Communication (Interrupt-driven)
-* LCD Interfacing (16x2)
+Receives serial data via /dev/ttyUSB0
+Processes incoming attendance records
+Stores validated data into log files
+Project Structure
+Embedded Side
+main.c – Main application logic
+i2c.c – RTC communication driver
+uart_interrupt.c – UART interrupt handling
+lcd.c – LCD interface functions
+delay.c – Timing utilities
+header.h – Common definitions
+Linux Side
+serial_logger.c – Serial data reader and logger
+data.txt – Authorized user database
+attendance_log.txt – Stored attendance records
+Working Principle
+1. RTC Initialization
 
----
+The RTC module is configured via I2C during startup. Time and date values are written to RTC registers.
 
-## 🏗️ System Architecture
+2. Real-Time Monitoring
 
-```id="arch1"
-User (Serial Terminal)
-        │
-        ▼
-UART0 (Interrupt)
-        │
-        ▼
-LPC21xx MCU ─── I2C ─── RTC Module
-        │
-        ▼
-      LCD Display
-```
+The microcontroller continuously reads time, date, and day from the RTC and displays them on the LCD.
 
----
+3. Attendance Input
 
-## 📁 Project Structure
+User input is received via UART. An interrupt service routine captures incoming data character-by-character. When the Enter key is pressed, the input is stored and flagged for processing.
 
-```id="proj2"
-├── main.c                  # Main application logic
-├── i2c.c                   # I2C driver (init, read, write)
-├── uart_interrupt.c        # UART interrupt handler
-├── lcd.c                   # LCD driver functions
-├── delay.c                 # Delay utilities
-├── header.h                # Common declarations
-```
+4. Data Transmission
 
----
+The microcontroller transmits the attendance data through UART at a fixed baud rate (9600). This data is sent to the connected Linux system via a USB-to-UART interface.
 
-## 🔄 Working Principle
+5. Data Reception on Linux
 
-### 🕒 RTC Initialization
+The Linux application opens the serial device (/dev/ttyUSB0) and configures it using termios settings. It continuously reads incoming data from the microcontroller.
 
-* Time and date are set using I2C write operations.
-* RTC registers are configured during startup.
+6. Data Processing and Storage
 
-### 📊 Real-Time Display
+The received data is:
 
-* Continuously reads:
+Compared with entries in data.txt
+Validated as a known user
+Logged into attendance_log.txt with timestamp
+Marked as IN or OUT based on previous entries
+How to Run
+Embedded Setup
+Compile the firmware using Keil uVision or an ARM toolchain
+Flash the program to the LPC21xx microcontroller
+Connect RTC via I2C (SCL, SDA pins)
+Connect LCD to GPIO
+Connect UART to USB-to-Serial converter
+Linux Setup
+Connect the USB-UART device
 
-  * Hours, Minutes, Seconds
-  * Date, Month, Year
-  * Day of the week
-* Displays formatted output on LCD.
+Verify the device using:
 
-### ⌨️ Attendance Input
+ls /dev/ttyUSB*
 
-* User enters data via UART terminal.
-* UART interrupt captures input character-by-character.
-* On pressing **Enter (`\r`)**:
+Compile the logger:
 
-  * Input is stored as a string
-  * `flag` is triggered
+gcc serial_logger.c -o logger
 
-### 💾 Attendance Logging
+Run the application:
 
-* Captured input is:
+./logger
+Sample Output
 
-  * Displayed via UART
-  * Temporarily acknowledged on LCD ("Attendance saved")
+LCD Display
 
----
-
-## 🚀 How to Run
-
-1. **Compile** the project using Keil uVision (or ARM toolchain).
-2. **Flash** the binary to LPC21xx board.
-3. Connect:
-
-   * RTC module via I2C (P0.2 → SCL, P0.3 → SDA)
-   * 16x2 LCD to GPIO
-4. Open Serial Terminal:
-
-   * Baud Rate: 9600
-   * 8 Data Bits, No Parity, 1 Stop Bit
-5. Observe real-time clock on LCD.
-6. Enter attendance data via terminal and press Enter.
-
----
-
-## 📟 Sample Output
-
-### LCD Display
-
-```id="lcd1"
-12:20:30PM
+12:20:30 PM
 29/11/25 MON
-```
 
-### UART Output
+Log File
 
-```id="uart1"
-John123
-Attendance saved
-```
-
----
-
-## ⚠️ Limitations
-
-* Attendance data is not stored permanently
-* No authentication mechanism
-* Single-user input handling
-* RTC time set manually in code
-
----
-
-## 🔮 Future Enhancements
-
-* 💾 EEPROM/Flash-based attendance storage
-* 🔐 Add password/RFID authentication
-* 📊 Timestamp-based logging
-* ☁️ IoT/cloud integration for remote monitoring
-* 📁 Export logs via UART or SD card
-
----
-
-## 🧠 Key Learning Outcomes
-
-* Low-level I2C protocol handling using registers
-* Interrupt-driven UART communication
-* RTC interfacing and BCD data handling
-* Embedded system modular design
-
----
-
-## 👨‍💻 Author
-
-**Modem Vijaya**
-
----
-
-## 📜 License
-
-This project is intended for educational and learning purposes.
+John123 in-time Tue Apr 28 10:00:00
+John123 out-time Tue Apr 28 18:00:00
+Limitations
+No internal storage on the microcontroller
+Depends on Linux system for data persistence
+Basic validation without authentication
+Single-device communication
+Future Enhancements
+Add EEPROM or flash storage for standalone operation
+Integrate RFID or authentication mechanisms
+Implement timestamp synchronization
+Enable cloud or IoT-based logging
+Support SD card or network-based storage
+Key Learning Outcomes
+Embedded and Linux system integration using UART
+I2C-based RTC interfacing
+Interrupt-driven UART communication
+Serial communication handling in Linux
+Hybrid system design combining firmware and host application
