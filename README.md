@@ -1,4 +1,5 @@
 RTC-Based Attendance Logging System (LPC21xx + Linux)
+----------------------------------------------------------------------------
 Overview
 
 This project implements a Real-Time Clock (RTC) based Attendance Logging System using the LPC21xx ARM7 microcontroller, integrated with a Linux-based host system for persistent data storage.
@@ -6,6 +7,7 @@ This project implements a Real-Time Clock (RTC) based Attendance Logging System 
 The embedded system handles real-time clock management, user input, and display, while the Linux application receives attendance data via serial communication and stores it in files.
 
 Key Features
+---------------------------------------------
 I2C communication with RTC (DS1307/DS3231)
 Real-time clock display (time, date, day)
 16x2 LCD interface for live system status
@@ -25,14 +27,14 @@ System Architecture
 The system is divided into two main components:
 
 Embedded System (LPC21xx):
-
+----------------------------------------
 Reads and maintains real-time data using RTC
 Accepts user input via UART
 Displays information on LCD
 Sends attendance data over serial communication
 
 Linux Host System:
-
+----------------------------------------
 Receives serial data via /dev/ttyUSB0
 Processes incoming attendance records
 Stores validated data into log files
@@ -48,7 +50,9 @@ Linux Side
 serial_logger.c – Serial data reader and logger
 data.txt – Authorized user database
 attendance_log.txt – Stored attendance records
+
 Working Principle
+---------------------------------------------------------------
 1. RTC Initialization
 
 The RTC module is configured via I2C during startup. Time and date values are written to RTC registers.
@@ -109,20 +113,19 @@ Log File
 
 John123 in-time Tue Apr 28 10:00:00
 John123 out-time Tue Apr 28 18:00:00
-Limitations
-No internal storage on the microcontroller
-Depends on Linux system for data persistence
-Basic validation without authentication
-Single-device communication
+
 Future Enhancements
-Add EEPROM or flash storage for standalone operation
-Integrate RFID or authentication mechanisms
-Implement timestamp synchronization
-Enable cloud or IoT-based logging
-Support SD card or network-based storage
+---------------------
+1. Add EEPROM or flash storage for standalone operation
+2. Integrate RFID or authentication mechanisms
+3. Implement timestamp synchronization
+4. Enable cloud or IoT-based logging
+5. Support SD card or network-based storage
+
 Key Learning Outcomes
-Embedded and Linux system integration using UART
-I2C-based RTC interfacing
-Interrupt-driven UART communication
-Serial communication handling in Linux
-Hybrid system design combining firmware and host application
+---------------------------
+1. Embedded and Linux system integration using UART
+2. I2C-based RTC interfacing
+3. Interrupt-driven UART communication
+4. Serial communication handling in Linux
+5. Hybrid system design combining firmware and host application
